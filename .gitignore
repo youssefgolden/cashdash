@@ -1,0 +1,16 @@
+# Node
+node_modules
+npm-debug.log*
+pnpm-lock.yaml
+# Next.js
+.next
+out
+# Env / secrets
+.env
+.env.*
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+# OS
+.DS_Store
+Thumbs.db
