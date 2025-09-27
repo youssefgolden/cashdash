@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import CashChart, { type CashPoint } from '@/components/CashChart';
 
 type T = { date: Date; amount: number; type: 'IN' | 'OUT' };
 
@@ -12,18 +12,11 @@ function monthsBetween(tx: T[]) {
 }
 
 function computeKpis(tx: T[]) {
-  const totalIn = tx
-    .filter((t) => t.type === 'IN')
-    .reduce((a, b) => a + b.amount, 0);
-
-  const totalOut = tx
-    .filter((t) => t.type === 'OUT')
-    .reduce((a, b) => a + Math.abs(b.amount), 0);
-
+  const totalIn = tx.filter(t => t.type === 'IN').reduce((a, b) => a + b.amount, 0);
+  const totalOut = tx.filter(t => t.type === 'OUT').reduce((a, b) => a + Math.abs(b.amount), 0);
   const cash = totalIn - totalOut;
   const burnMonthly = Math.max(0, totalOut - totalIn) / monthsBetween(tx);
   const runwayDays = burnMonthly > 0 ? Math.floor((cash / burnMonthly) * 30) : 365;
-
   return { cash, burnMonthly, runwayDays };
 }
 
@@ -36,8 +29,7 @@ export default async function DashboardPage() {
     select: { date: true, amount: true, type: true },
   });
 
-  // Convertir explicitement les Decimals en number
-  const txMapped: T[] = tx.map((t) => ({
+  const txMapped: T[] = tx.map(t => ({
     date: t.date,
     amount: Number(t.amount),
     type: t.type as 'IN' | 'OUT',
@@ -45,19 +37,17 @@ export default async function DashboardPage() {
 
   const k = computeKpis(txMapped);
 
-  // Construire la série pour la courbe (solde cumulé dans le temps)
+  // Série pour le graphe (solde cumulé)
   let balance = 0;
-  const series = txMapped.map((t) => {
+  const series: CashPoint[] = txMapped.map(t => {
     balance += t.amount;
-    return {
-      date: t.date.toISOString().slice(0, 10), // yyyy-mm-dd
-      balance,
-    };
+    return { date: t.date.toISOString().slice(0, 10), balance };
   });
 
   return (
     <main className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
+
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border p-4">
           <div className="text-sm text-neutral-500">Trésorerie</div>
@@ -73,23 +63,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Graphique de solde cumulé */}
-      <div className="rounded-xl border p-4 h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={series}>
-            <XAxis dataKey="date" hide />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="balance"
-              stroke="#4f46e5"
-              dot={false}
-              strokeWidth={2}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      <CashChart data={series} />
     </main>
   );
 }
