@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 type T = { date: Date; amount: number; type: 'IN' | 'OUT' };
 
@@ -38,14 +39,24 @@ export default async function DashboardPage() {
   // Convertir explicitement les Decimals en number
   const txMapped: T[] = tx.map((t) => ({
     date: t.date,
-    amount: Number(t.amount), // <- important
+    amount: Number(t.amount),
     type: t.type as 'IN' | 'OUT',
   }));
 
   const k = computeKpis(txMapped);
 
+  // Construire la série pour la courbe (solde cumulé dans le temps)
+  let balance = 0;
+  const series = txMapped.map((t) => {
+    balance += t.amount;
+    return {
+      date: t.date.toISOString().slice(0, 10), // yyyy-mm-dd
+      balance,
+    };
+  });
+
   return (
-    <main className="p-6">
+    <main className="p-6 space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-xl border p-4">
@@ -60,6 +71,24 @@ export default async function DashboardPage() {
           <div className="text-sm text-neutral-500">Runway</div>
           <div className="text-2xl font-bold">{k.runwayDays} jours</div>
         </div>
+      </div>
+
+      {/* Graphique de solde cumulé */}
+      <div className="rounded-xl border p-4 h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={series}>
+            <XAxis dataKey="date" hide />
+            <YAxis />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="balance"
+              stroke="#4f46e5"
+              dot={false}
+              strokeWidth={2}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </main>
   );
