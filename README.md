@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CashDash
 
-## Getting Started
+CashDash is a SaaS-style cash management dashboard.  
+It helps track cash balance, monthly burn rate, runway, and import transactions from CSV.
 
-First, run the development server:
+---
+
+## Tech Stack
+
+- **Frontend**: [Next.js](https://nextjs.org/) (App Router, React 19, TypeScript, TailwindCSS)  
+- **Backend**: API Routes (REST) and GraphQL (planned)  
+- **Database**: PostgreSQL (Neon) with Prisma ORM  
+- **Deployment**: Vercel  
+- **Authentication**: NextAuth (planned)  
+- **Payments**: Stripe (planned)  
+
+---
+
+## Features
+
+### Implemented
+- Dashboard (`/`) with KPIs:
+  - Cash balance
+  - Monthly burn rate
+  - Runway
+- Cashflow chart (Recharts)
+- Transactions list (`/transactions`)
+- CSV import (`/api/ingest`)
+- Vercel deployment with Neon database
+- Development seeding with Prisma
+
+### In Progress
+- Pagination and filters (date, category) for transactions
+- UI/UX improvements (feedback, currency formatting, accessibility)
+
+### Planned Roadmap
+- [ ] GraphQL API (`/api/graphql`) with queries for KPIs and transactions  
+- [ ] Multi-tenant authentication with NextAuth  
+- [ ] Advanced KPIs: DSO, DPO, stock turnover  
+- [ ] Landing page and pricing with Stripe integration  
+- [ ] Tests and CI/CD with Vitest, ESLint, GitHub Actions  
+- [ ] Performance and accessibility (Lighthouse ≥90)  
+- [ ] (Optional) Java Spring Boot microservice for forecasting (`/forecast`)  
+
+---
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+git clone https://github.com/<user>/cashdash
+cd cashdash
+pnpm install
+cp .env.example .env   # configure DATABASE_URL
+pnpm prisma migrate dev
 pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+### Bonus Roadmap (Phases)
 
-To learn more about Next.js, take a look at the following resources:
+Phase 1 (MVP): Dashboard, Transactions, CSV Import
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Phase 2: GraphQL API & BFF
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Phase 3: Multi-tenant authentication
 
-## Deploy on Vercel
+Phase 4: Performance, accessibility, CI/CD
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Phase 5: Landing page, pricing, Stripe integration
